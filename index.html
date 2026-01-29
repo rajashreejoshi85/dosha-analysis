@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dosha Quiz - Discover Your Ayurvedic Body Type</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --vata-color: #7B9E87;
+            --vata-light: #E8F0EA;
+            --pitta-color: #C4785C;
+            --pitta-light: #F5EBE6;
+            --kapha-color: #6B8CAE;
+            --kapha-light: #E6EEF5;
+            --bg-cream: #FAF8F5;
+            --bg-warm: #F5F2ED;
+            --text-dark: #2D2A26;
+            --text-muted: #6B6560;
+            --border-light: #E8E4DE;
+            --gold-accent: #C9A962;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-cream);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(123, 158, 135, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(196, 120, 92, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(107, 140, 174, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, var(--vata-color) 0%, var(--pitta-color) 50%, var(--kapha-color) 100%);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L35 25 L55 30 L35 35 L30 55 L25 35 L5 30 L25 25 Z' fill='rgba(255,255,255,0.05)'/%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 600;
+            color: white;
+            margin-bottom: 12px;
+            position: relative;
+            letter-spacing: 0.02em;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+            position: relative;
+        }
+
+        .instructions {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .instructions h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions h2::before {
+            content: '✦';
+            color: var(--gold-accent);
+        }
+
+        .instructions ol {
+            padding-left: 24px;
+            color: var(--text-muted);
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            padding-left: 8px;
+        }
+
+        .personal-details {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .personal-details h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+        }
+
+        .detail-field label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .detail-field input,
+        .detail-field select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-light);
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--bg-cream);
+        }
+
+        .detail-field input:focus,
+        .detail-field select:focus {
+            outline: none;
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 0 4px rgba(201, 169, 98, 0.1);
+        }
+
+        .detail-field.error input,
+        .detail-field.error select {
+            border-color: #e74c3c;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.8rem;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .detail-field.error .error-message {
+            display: block;
+        }
+
+        /* Quiz Table Styles */
+        .quiz-table-container {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            overflow-x: auto;
+        }
+
+        .quiz-table-container h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--text-dark);
+        }
+
+        .quiz-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .quiz-table th,
+        .quiz-table td {
+            border: 1px solid var(--border-light);
+            padding: 12px 16px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .quiz-table thead th {
+            background: var(--bg-warm);
+            font-weight: 600;
+            font-size: 1rem;
+            position: sticky;
+            top: 0;
+        }
+
+        .quiz-table thead th:nth-child(1) {
+            width: 50px;
+            text-align: center;
+        }
+
+        .quiz-table thead th:nth-child(2) {
+            width: 140px;
+        }
+
+        .quiz-table thead th:nth-child(3) {
+            background: var(--vata-light);
+            color: var(--vata-color);
+        }
+
+        .quiz-table thead th:nth-child(4) {
+            background: var(--pitta-light);
+            color: var(--pitta-color);
+        }
+
+        .quiz-table thead th:nth-child(5) {
+            background: var(--kapha-light);
+            color: var(--kapha-color);
+        }
+
+        .quiz-table tbody tr:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .quiz-table .question-number {
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--bg-warm);
+        }
+
+        .quiz-table .question-text {
+            font-weight: 500;
+            color: var(--text-dark);
+            background: var(--bg-warm);
+        }
+
+        .quiz-table .question-row td {
+            border-bottom: none;
+        }
+
+        .quiz-table .option-row td {
+            border-top: none;
+            border-bottom: 1px dashed var(--border-light);
+        }
+
+        .quiz-table .option-row:last-of-type td,
+        .quiz-table .last-option td {
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .quiz-table .option-row .question-number,
+        .quiz-table .option-row .question-text {
+            background: transparent;
+        }
+
+        /* Checkbox styling */
+        .option-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .option-cell:hover {
+            color: var(--text-dark);
+        }
+
+        .custom-checkbox {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .custom-checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 2px solid var(--border-light);
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .vata-cell .custom-checkbox input:checked ~ .checkmark {
+            background: var(--vata-color);
+            border-color: var(--vata-color);
+        }
+
+        .pitta-cell .custom-checkbox input:checked ~ .checkmark {
+            background: var(--pitta-color);
+            border-color: var(--pitta-color);
+        }
+
+        .kapha-cell .custom-checkbox input:checked ~ .checkmark {
+            background: var(--kapha-color);
+            border-color: var(--kapha-color);
+        }
+
+        .checkmark::after {
+            content: '';
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .custom-checkbox input:checked ~ .checkmark::after {
+            display: block;
+        }
+
+        .option-label {
+            color: var(--text-dark);
+            line-height: 1.4;
+        }
+
+        /* Results Section */
+        .results-section {
+            background: linear-gradient(135deg, var(--vata-color), var(--pitta-color), var(--kapha-color));
+            border-radius: 16px;
+            padding: 40px;
+            margin-top: 40px;
+            color: white;
+        }
+
+        .results-section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 600px) {
+            .score-grid { grid-template-columns: 1fr; }
+        }
+
+        .score-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .score-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .score-value {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .calculate-btn, .download-btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .calculate-btn { background: white; color: var(--text-dark); }
+        .download-btn { background: var(--gold-accent); color: white; display: none; }
+
+        .calculate-btn:hover, .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .download-btn.show { display: inline-flex; }
+
+        .result-message {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 1.1rem;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result-message.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Interpretation Section */
+        .interpretation-section {
+            margin-top: 60px;
+        }
+
+        .interpretation-section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 32px;
+            color: var(--text-dark);
+        }
+
+        .interpretation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .interpretation-card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .interpretation-card.vata-card { border-top: 4px solid var(--vata-color); }
+        .interpretation-card.pitta-card { border-top: 4px solid var(--pitta-color); }
+        .interpretation-card.kapha-card { border-top: 4px solid var(--kapha-color); }
+
+        .interpretation-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .interpretation-card.vata-card h3 { color: var(--vata-color); }
+        .interpretation-card.pitta-card h3 { color: var(--pitta-color); }
+        .interpretation-card.kapha-card h3 { color: var(--kapha-color); }
+
+        .interpretation-card p {
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+        }
+
+        .interpretation-card h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 16px 0 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Mobile responsive table */
+        @media (max-width: 768px) {
+            .quiz-table {
+                font-size: 0.85rem;
+            }
+            .quiz-table th,
+            .quiz-table td {
+                padding: 8px 10px;
+            }
+        }
+    
+        /* Mobile friendly quiz cards */
+        .mobile-quiz{ display:none; }
+
+        .mobile-quiz .quiz-card{
+            background: var(--bg-warm);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+        }
+
+        .mobile-quiz .quiz-card-header{
+            display:flex;
+            gap: 10px;
+            align-items:flex-start;
+            margin-bottom: 12px;
+        }
+
+        .mobile-quiz .qnum{
+            flex: 0 0 auto;
+            min-width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.06);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight: 700;
+        }
+
+        .mobile-quiz .qtext{
+            font-weight: 600;
+            line-height: 1.35;
+        }
+
+        .mobile-quiz .dosha-block{
+            border-top: 1px solid rgba(0,0,0,0.06);
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        .mobile-quiz .dosha-title{
+            font-weight: 700;
+            margin-bottom: 10px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+        }
+
+        .mobile-quiz .option-list{
+            display:flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mobile-quiz .m-option{
+            display:flex;
+            gap: 10px;
+            align-items:flex-start;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.6);
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .mobile-quiz .m-option input{
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            flex: 0 0 auto;
+        }
+
+        .mobile-quiz .m-option span{
+            line-height: 1.35;
+            font-size: 1rem;
+        }
+
+        /* Mobile layout for the personal details */
+        @media (max-width: 768px){
+            .details-grid{ grid-template-columns: 1fr; }
+            .detail-field input, .detail-field select{ font-size: 16px; }
+            .button-group{ width: 100%; }
+            .calculate-btn, .download-btn{ width: 100%; justify-content: center; }
+
+            /* Use cards instead of table on mobile */
+            .quiz-table-container{ display:none; }
+            .mobile-quiz{ display:block; }
+        }
+
+
+        /* Mobile: hide section headings "Vata/Pitta/Kapha" but keep grouping with a subtle divider */
+        .dosha-divider{
+            border: 0;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            margin: 14px 0;
+        }
+
+
+        /* Mobile cleanup: remove internal dividers and borders */
+        @media (max-width: 768px) {
+            hr,
+            .dosha-divider,
+            .section-divider,
+            .option-divider,
+            .divider {
+                display: none !important;
+            }
+
+            .question-card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .option-row {
+                border-bottom: none !important;
+            }
+        }
+
+</style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dosha Quiz</h1>
+            <p>Analyse Your Ayurvedic Body Type</p>
+        </header>
+
+        <div class="instructions">
+            <h2>Instructions</h2>
+            <ol>
+                <li>Tick all applicable options in each row. For example, if your skin is dry, thick, and warm, select all "Dry" and "Warm."</li>
+                <li>Choose the option that best describes you for most of the year.</li>
+                <li>After completing all questions, click "Calculate Results" to see your scores.</li>
+                <li>Download your personalized PDF report to share back to me.</li>
+            </ol>
+        </div>
+
+        <div class="personal-details">
+            <h2>Personal Details</h2>
+            <div class="details-grid">
+                <div class="detail-field" id="name-field">
+                    <label for="name">Name *</label>
+                    <input type="text" id="name" placeholder="Enter your name" required>
+                    <div class="error-message">Please enter your name</div>
+                </div>
+                <div class="detail-field" id="gender-field">
+                    <label for="gender">Gender *</label>
+                    <select id="gender" required>
+                        <option value="">Select</option>
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <div class="error-message">Please select your gender</div>
+                </div>
+                <div class="detail-field" id="age-field">
+                    <label for="age">Age *</label>
+                    <input type="number" id="age" placeholder="Enter your age" min="1" max="120" required>
+                    <div class="error-message">Please enter your age</div>
+                </div>
+                </div>
+        </div>
+
+        <!-- Quiz Table -->
+        
+        <!-- Mobile Quiz Cards -->
+        <div id="mobile-quiz" class="mobile-quiz" aria-label="Dosha quiz mobile"></div>
+
+<div class="quiz-table-container">
+            <h2>Dosha Analysis</h2>
+            <table class="quiz-table">
+                <thead>
+                    <tr>
+                        <th>S. No.</th>
+                        <th>Questions</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Question 1: Body -->
+                    <tr class="question-row">
+                        <td class="question-number" rowspan="3">1</td>
+                        <td class="question-text" rowspan="3">How is your body?</td>
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q1_vata" value="Thin"><span class="checkmark"></span></div><span class="option-label">Thin</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q1_pitta" value="Athletic"><span class="checkmark"></span></div><span class="option-label">Athletic</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q1_kapha" value="Plump"><span class="checkmark"></span></div><span class="option-label">Plump</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q1_vata" value="Bony"><span class="checkmark"></span></div><span class="option-label">Bony</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q1_pitta" value="Medium"><span class="checkmark"></span></div><span class="option-label">Medium</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q1_kapha" value="Fleshy"><span class="checkmark"></span></div><span class="option-label">Fleshy</span></label></td>
+                    </tr>
+                    <tr class="option-row last-option">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q1_vata" value="Tendency to Low weight"><span class="checkmark"></span></div><span class="option-label">Tendency to Low weight</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q1_pitta" value="Tendency to Medium weight"><span class="checkmark"></span></div><span class="option-label">Tendency to Medium weight</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q1_kapha" value="Tendency to Heavy weight"><span class="checkmark"></span></div><span class="option-label">Tendency to Heavy weight</span></label></td>
+                    </tr>
+
+                    <!-- Question 2: Skin -->
+                    <tr class="question-row">
+                        <td class="question-number" rowspan="6">2</td>
+                        <td class="question-text" rowspan="6">How is your skin?</td>
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_vata" value="Dry"><span class="checkmark"></span></div><span class="option-label">Dry</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_pitta" value="Moist"><span class="checkmark"></span></div><span class="option-label">Moist</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_kapha" value="Oily"><span class="checkmark"></span></div><span class="option-label">Oily</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_vata" value="Rough"><span class="checkmark"></span></div><span class="option-label">Rough</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_pitta" value="Smooth"><span class="checkmark"></span></div><span class="option-label">Smooth</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_kapha" value="Smooth"><span class="checkmark"></span></div><span class="option-label">Smooth</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_vata" value="Thin"><span class="checkmark"></span></div><span class="option-label">Thin</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_pitta" value="Medium"><span class="checkmark"></span></div><span class="option-label">Medium</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_kapha" value="Thick"><span class="checkmark"></span></div><span class="option-label">Thick</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_vata" value="Blackish"><span class="checkmark"></span></div><span class="option-label">Blackish</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_pitta" value="Reddish"><span class="checkmark"></span></div><span class="option-label">Reddish</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_kapha" value="Clear Complexion"><span class="checkmark"></span></div><span class="option-label">Clear Complexion</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_vata" value="Rough"><span class="checkmark"></span></div><span class="option-label">Rough</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_pitta" value="Smooth"><span class="checkmark"></span></div><span class="option-label">Smooth</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_kapha" value="Smooth"><span class="checkmark"></span></div><span class="option-label">Smooth</span></label></td>
+                    </tr>
+                    <tr class="option-row last-option">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_vata" value="Cool"><span class="checkmark"></span></div><span class="option-label">Cool</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_pitta" value="Warm"><span class="checkmark"></span></div><span class="option-label">Warm</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q2_kapha" value="Cool"><span class="checkmark"></span></div><span class="option-label">Cool</span></label></td>
+                    </tr>
+
+                    <!-- Question 3: Hair -->
+                    <tr class="question-row">
+                        <td class="question-number" rowspan="5">3</td>
+                        <td class="question-text" rowspan="5">How is your hair?</td>
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_vata" value="Dry"><span class="checkmark"></span></div><span class="option-label">Dry</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_pitta" value="Medium"><span class="checkmark"></span></div><span class="option-label">Medium</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_kapha" value="Oily"><span class="checkmark"></span></div><span class="option-label">Oily</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_vata" value="Slow growth"><span class="checkmark"></span></div><span class="option-label">Slow growth</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_pitta" value="Medium growth"><span class="checkmark"></span></div><span class="option-label">Medium growth</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_kapha" value="Good growth"><span class="checkmark"></span></div><span class="option-label">Good growth</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_vata" value="Brittle"><span class="checkmark"></span></div><span class="option-label">Brittle</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_pitta" value="Normal"><span class="checkmark"></span></div><span class="option-label">Normal</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_kapha" value="Strong"><span class="checkmark"></span></div><span class="option-label">Strong</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_vata" value="Thin"><span class="checkmark"></span></div><span class="option-label">Thin</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_pitta" value="Medium"><span class="checkmark"></span></div><span class="option-label">Medium</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_kapha" value="Thick"><span class="checkmark"></span></div><span class="option-label">Thick</span></label></td>
+                    </tr>
+                    <tr class="option-row last-option">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_vata" value="Dry"><span class="checkmark"></span></div><span class="option-label">Dry</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_pitta" value="Medium"><span class="checkmark"></span></div><span class="option-label">Medium</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q3_kapha" value="Oily"><span class="checkmark"></span></div><span class="option-label">Oily</span></label></td>
+                    </tr>
+
+                    <!-- Question 4: Nails -->
+                    <tr class="question-row">
+                        <td class="question-number" rowspan="5">4</td>
+                        <td class="question-text" rowspan="5">How are your nails?</td>
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_vata" value="Dry and Rough"><span class="checkmark"></span></div><span class="option-label">Dry and Rough</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_pitta" value="Smooth"><span class="checkmark"></span></div><span class="option-label">Smooth</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_kapha" value="Smooth"><span class="checkmark"></span></div><span class="option-label">Smooth</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_vata" value="Blackish"><span class="checkmark"></span></div><span class="option-label">Blackish</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_pitta" value="Reddish"><span class="checkmark"></span></div><span class="option-label">Reddish</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_kapha" value="White/Light Pink"><span class="checkmark"></span></div><span class="option-label">White/Light Pink</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_vata" value="Brittle"><span class="checkmark"></span></div><span class="option-label">Brittle</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_pitta" value="Flexible"><span class="checkmark"></span></div><span class="option-label">Flexible</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_kapha" value="Hard"><span class="checkmark"></span></div><span class="option-label">Hard</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_vata" value="Small"><span class="checkmark"></span></div><span class="option-label">Small</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_pitta" value="Medium"><span class="checkmark"></span></div><span class="option-label">Medium</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_kapha" value="Large"><span class="checkmark"></span></div><span class="option-label">Large</span></label></td>
+                    </tr>
+                    <tr class="option-row last-option">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_vata" value="Irregular shape"><span class="checkmark"></span></div><span class="option-label">Irregular shape</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_pitta" value="Regular/Oval Shape"><span class="checkmark"></span></div><span class="option-label">Regular/Oval Shape</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q4_kapha" value="Regular/Broad"><span class="checkmark"></span></div><span class="option-label">Regular/Broad</span></label></td>
+                    </tr>
+
+                    <!-- Question 5: Appetite/Digestion -->
+                    <tr class="question-row">
+                        <td class="question-number" rowspan="4">5</td>
+                        <td class="question-text" rowspan="4">How is your appetite/digestion?</td>
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q5_vata" value="Irregular"><span class="checkmark"></span></div><span class="option-label">Irregular</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q5_pitta" value="Regular"><span class="checkmark"></span></div><span class="option-label">Regular</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q5_kapha" value="Regular"><span class="checkmark"></span></div><span class="option-label">Regular</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q5_vata" value="Weak"><span class="checkmark"></span></div><span class="option-label">Weak</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q5_pitta" value="Strong"><span class="checkmark"></span></div><span class="option-label">Strong</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q5_kapha" value="Low"><span class="checkmark"></span></div><span class="option-label">Low</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q5_vata" value="Constipation"><span class="checkmark"></span></div><span class="option-label">Constipation</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q5_pitta" value="Acidity"><span class="checkmark"></span></div><span class="option-label">Acidity</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q5_kapha" value="Heaviness after meals"><span class="checkmark"></span></div><span class="option-label">Heaviness after meals</span></label></td>
+                    </tr>
+                    <tr class="option-row last-option">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q5_vata" value="Bloating"><span class="checkmark"></span></div><span class="option-label">Bloating</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q5_pitta" value="Dizziness/weakness after skipping meals"><span class="checkmark"></span></div><span class="option-label">Dizziness/weakness after skipping meals</span></label></td>
+                        <td class="kapha-cell"></td>
+                    </tr>
+
+                    <!-- Question 6: Sleep -->
+                    <tr class="question-row">
+                        <td class="question-number" rowspan="4">6</td>
+                        <td class="question-text" rowspan="4">How is your sleep?</td>
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_vata" value="Light"><span class="checkmark"></span></div><span class="option-label">Light</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_pitta" value="Medium"><span class="checkmark"></span></div><span class="option-label">Medium</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_kapha" value="Deep"><span class="checkmark"></span></div><span class="option-label">Deep</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_vata" value="Random"><span class="checkmark"></span></div><span class="option-label">Random</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_pitta" value="Regular"><span class="checkmark"></span></div><span class="option-label">Regular</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_kapha" value="Regular"><span class="checkmark"></span></div><span class="option-label">Regular</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_vata" value="Less sleep"><span class="checkmark"></span></div><span class="option-label">Less sleep</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_pitta" value="Medium duration"><span class="checkmark"></span></div><span class="option-label">Medium duration</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_kapha" value="Long"><span class="checkmark"></span></div><span class="option-label">Long</span></label></td>
+                    </tr>
+                    <tr class="option-row last-option">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_vata" value="Dreams of winds/clouds/falling"><span class="checkmark"></span></div><span class="option-label">Recurrent dreams of winds/clouds/falling</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_pitta" value="Dreams of bright objects, fire"><span class="checkmark"></span></div><span class="option-label">Recurrent dreams of bright objects, fire etc.</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q6_kapha" value="Dreams of snow, cold places"><span class="checkmark"></span></div><span class="option-label">Recurrent dreams of snow, cold places etc.</span></label></td>
+                    </tr>
+
+                    <!-- Question 7: Memory -->
+                    <tr class="question-row last-option">
+                        <td class="question-number">7</td>
+                        <td class="question-text">How is your memory?</td>
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q7_vata" value="Recent good, remote poor"><span class="checkmark"></span></div><span class="option-label">Recent good, remote poor</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q7_pitta" value="Medium"><span class="checkmark"></span></div><span class="option-label">Medium</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q7_kapha" value="Good remote memory"><span class="checkmark"></span></div><span class="option-label">Good remote memory</span></label></td>
+                    </tr>
+
+                    <!-- Question 8: Grasping Power -->
+                    <tr class="question-row last-option">
+                        <td class="question-number">8</td>
+                        <td class="question-text">How is your grasping power?</td>
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q8_vata" value="Good"><span class="checkmark"></span></div><span class="option-label">Good</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q8_pitta" value="Excellent"><span class="checkmark"></span></div><span class="option-label">Excellent</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q8_kapha" value="Average"><span class="checkmark"></span></div><span class="option-label">Average</span></label></td>
+                    </tr>
+
+                    <!-- Question 9: Personality -->
+                    <tr class="question-row">
+                        <td class="question-number" rowspan="8">9</td>
+                        <td class="question-text" rowspan="8">What is your personality?</td>
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_vata" value="Impulsive"><span class="checkmark"></span></div><span class="option-label">Impulsive</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_pitta" value="Accuracy driven"><span class="checkmark"></span></div><span class="option-label">Accuracy driven</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_kapha" value="Content"><span class="checkmark"></span></div><span class="option-label">Content</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_vata" value="Creative"><span class="checkmark"></span></div><span class="option-label">Creative</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_pitta" value="Calculative"><span class="checkmark"></span></div><span class="option-label">Calculative</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_kapha" value="Compassionate"><span class="checkmark"></span></div><span class="option-label">Compassionate</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_vata" value="Flexible"><span class="checkmark"></span></div><span class="option-label">Flexible</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_pitta" value="Ambitious"><span class="checkmark"></span></div><span class="option-label">Ambitious</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_kapha" value="Grounded"><span class="checkmark"></span></div><span class="option-label">Grounded</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_vata" value="Lively"><span class="checkmark"></span></div><span class="option-label">Lively</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_pitta" value="Classy"><span class="checkmark"></span></div><span class="option-label">Classy</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_kapha" value="Peaceful"><span class="checkmark"></span></div><span class="option-label">Peaceful</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_vata" value="Energetic"><span class="checkmark"></span></div><span class="option-label">Energetic</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_pitta" value="Quick but gets tired easily"><span class="checkmark"></span></div><span class="option-label">Quick but gets tired easily</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_kapha" value="Dull"><span class="checkmark"></span></div><span class="option-label">Dull</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_vata" value="Indecisive"><span class="checkmark"></span></div><span class="option-label">Indecisive</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_pitta" value="Focused"><span class="checkmark"></span></div><span class="option-label">Focused</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_kapha" value="Slow and steady"><span class="checkmark"></span></div><span class="option-label">Slow and steady</span></label></td>
+                    </tr>
+                    <tr class="option-row">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_vata" value="Unstable"><span class="checkmark"></span></div><span class="option-label">Unstable</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_pitta" value="Disciplined"><span class="checkmark"></span></div><span class="option-label">Disciplined</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_kapha" value="Loyal"><span class="checkmark"></span></div><span class="option-label">Loyal</span></label></td>
+                    </tr>
+                    <tr class="option-row last-option">
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_vata" value="Insecure"><span class="checkmark"></span></div><span class="option-label">Insecure</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_pitta" value="High tempered"><span class="checkmark"></span></div><span class="option-label">High tempered</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q9_kapha" value="Stubborn"><span class="checkmark"></span></div><span class="option-label">Stubborn</span></label></td>
+                    </tr>
+
+                    <!-- Question 10: General Approach -->
+                    <tr class="question-row last-option">
+                        <td class="question-number">10</td>
+                        <td class="question-text">What is your general approach?</td>
+                        <td class="vata-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q10_vata" value="Liberal"><span class="checkmark"></span></div><span class="option-label">Liberal</span></label></td>
+                        <td class="pitta-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q10_pitta" value="Radical"><span class="checkmark"></span></div><span class="option-label">Radical</span></label></td>
+                        <td class="kapha-cell"><label class="option-cell"><div class="custom-checkbox"><input type="checkbox" name="q10_kapha" value="Conservative"><span class="checkmark"></span></div><span class="option-label">Conservative</span></label></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+            <h2>Your Dosha Results</h2>
+            <div class="score-grid">
+                <div class="score-card vata">
+                    <h3 class="dosha-label-pill">VATA</h3>
+                    <div class="score-value" id="vata-score">0</div>
+                </div>
+                <div class="score-card pitta">
+                    <h3 class="dosha-label-pill">PITTA</h3>
+                    <div class="score-value" id="pitta-score">0</div>
+                </div>
+                <div class="score-card kapha">
+                    <h3 class="dosha-label-pill">KAPHA</h3>
+                    <div class="score-value" id="kapha-score">0</div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="calculate-btn" onclick="calculateResults()">Calculate Results</button>
+                <button class="download-btn" id="download-btn" onclick="generatePDF()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download PDF Report
+                </button>
+            </div>
+            <div class="result-message" id="result-message"></div>
+        </div>
+
+        <!-- Interpretation Section -->
+        <div class="interpretation-section">
+            <h2>Understanding Your Dosha</h2>
+            <div class="interpretation-grid">
+                <div class="interpretation-card vata-card">
+                    <h3>Vata Dominant Body Type</h3>
+                    <p>With dominance of air and space element, you are a creative, liberal, and fun-loving person. Your hair, skin, nails, and other body parts tend to be dry, cool, light, and rough. You may have a slim and light body.</p>
+                    <h4>Diet for Vata</h4>
+                    <p>To balance the dry, cool, and light effect of vata dosha, consume more oily, warm, and heavy food according to your digestive strength. Herbs like garlic, ginger, clove, and black cardamom are great for you.</p>
+                    <h4>Lifestyle for Vata</h4>
+                    <p>Try to have a regular routine, especially meal times. Mindfulness practice and chanting may help balance mental hyperactivity and maintain a focused approach.</p>
+                </div>
+                <div class="interpretation-card pitta-card">
+                    <h3>Pitta Dominant Body Type</h3>
+                    <p>Fire is the dominant element in Pitta body type. You are intelligent, classy, and vigilant with a practical approach towards life. You have great metabolism, good appetite, and an athletic personality.</p>
+                    <h4>Diet for Pitta</h4>
+                    <p>You must have cooling and moisturising herbs to balance the fire element. Cooling herbs like coriander, green cardamom, fennel, and vetiver are great for you.</p>
+                    <h4>Lifestyle for Pitta</h4>
+                    <p>Avoid skipping meals. Afternoon nap on a hot day is good for you. Regular meditation may help balance anger and frustration and develop unconditional acceptance.</p>
+                </div>
+                <div class="interpretation-card kapha-card">
+                    <h3>Kapha Dominant Body Type</h3>
+                    <p>With abundance of water and earth elements, you are a forgiving, peaceful, and steady person with excellent memory. You may have beautiful skin, thick hair, and a heavy build.</p>
+                    <h4>Diet for Kapha</h4>
+                    <p>Balance excess moisture, coolness, and heaviness with dry, light, and warm herbs like turmeric, ginger, asafoetida, and caraway.</p>
+                    <h4>Lifestyle for Kapha</h4>
+                    <p>Avoid over-eating and sleeping during daytime. Exercise and active routine is a must to avoid weight gain. Music meditation can help knock out inactivity and dullness.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>This quiz is for general awareness. For any changes to diet, lifestyle, or medication, seek proper guidance.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Store results globally
+        let quizResults = {
+            name: '',
+            gender: '',
+            age: '',            vataScore: 0,
+            pittaScore: 0,
+            kaphaScore: 0,
+            dominantDosha: '',
+            secondaryDosha: '',
+            recessiveDosha: '',
+            selectedOptions: {},
+            date: ''
+        };
+
+        // Dosha information for PDF
+        const doshaInfo = {
+            Vata: {
+                description: "With dominance of air and space element, you are a creative, liberal, and fun-loving person. Your hair, skin, nails, and other body parts tend to be dry, cool, light, and rough. You may have a slim and light body.",
+                diet: "To balance the dry, cool, and light effect of vata dosha, consume more oily, warm, and heavy food according to your digestive strength. Herbs like garlic, ginger, clove, and black cardamom are great for you.",
+                lifestyle: "Try to have a regular routine, especially meal times. Mindfulness practice and chanting may help balance mental hyperactivity and maintain a focused approach."
+            },
+            Pitta: {
+                description: "Fire is the dominant element in Pitta body type. You are intelligent, classy, and vigilant with a practical approach towards life. You have great metabolism, good appetite, and an athletic personality.",
+                diet: "You must have cooling and moisturising herbs to balance the fire element. Cooling herbs like coriander, green cardamom, fennel, and vetiver are great for you.",
+                lifestyle: "Avoid skipping meals. Afternoon nap on a hot day is good for you. Regular meditation may help balance anger and frustration and develop unconditional acceptance."
+            },
+            Kapha: {
+                description: "With abundance of water and earth elements, you are a forgiving, peaceful, and steady person with excellent memory. You may have beautiful skin, thick hair, and a heavy build.",
+                diet: "Balance excess moisture, coolness, and heaviness with dry, light, and warm herbs like turmeric, ginger, asafoetida, and caraway.",
+                lifestyle: "Avoid over-eating and sleeping during daytime. Exercise and active routine is a must to avoid weight gain. Music meditation can help knock out inactivity and dullness."
+            }
+        };
+
+        const questions = [
+            { num: 1, text: "How is your body?" },
+            { num: 2, text: "How is your skin?" },
+            { num: 3, text: "How is your hair?" },
+            { num: 4, text: "How are your nails?" },
+            { num: 5, text: "How is your appetite/digestion?" },
+            { num: 6, text: "How is your sleep?" },
+            { num: 7, text: "How is your memory?" },
+            { num: 8, text: "How is your grasping power?" },
+            { num: 9, text: "What is your personality?" },
+            { num: 10, text: "What is your general approach?" }
+        ];
+
+        function buildMobileQuiz() {
+            const container = document.getElementById('mobile-quiz');
+            if (!container) return;
+
+            const doshas = [
+                { key: 'vata', label: 'Vata' },
+                { key: 'pitta', label: 'Pitta' },
+                { key: 'kapha', label: 'Kapha' }
+            ];
+
+            questions.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'quiz-card';
+
+                const header = document.createElement('div');
+                header.className = 'quiz-card-header';
+
+                const qnum = document.createElement('div');
+                qnum.className = 'qnum';
+                qnum.textContent = q.num;
+
+                const qtext = document.createElement('div');
+                qtext.className = 'qtext';
+                qtext.textContent = q.text;
+
+                header.appendChild(qnum);
+                header.appendChild(qtext);
+                card.appendChild(header);
+
+                doshas.forEach(d => {
+                    const block = document.createElement('div');
+                    block.className = 'dosha-block';
+
+                    const title = document.createElement('div');
+                    title.className = 'dosha-title';
+                    title.textContent = d.label;
+
+                    const list = document.createElement('div');
+                    list.className = 'option-list';
+
+                    const originalInputs = Array.from(document.querySelectorAll(`input[name="q${q.num}_${d.key}"]`));
+
+                    originalInputs.forEach((orig, idx) => {
+                        // Ensure original has an id
+                        if (!orig.id) {
+                            orig.id = `q${q.num}_${d.key}_${idx+1}`;
+                        }
+
+                        // Find readable label text
+                        let labelText = orig.value || '';
+                        const labelEl = orig.closest('label');
+                        const labelSpan = labelEl ? labelEl.querySelector('.option-label') : null;
+                        if (labelSpan && labelSpan.textContent.trim()) {
+                            labelText = labelSpan.textContent.trim();
+                        }
+
+                        const opt = document.createElement('label');
+                        opt.className = 'm-option';
+
+                        const mcb = document.createElement('input');
+                        mcb.type = 'checkbox';
+                        mcb.checked = orig.checked;
+                        mcb.setAttribute('data-target', orig.id);
+
+                        mcb.addEventListener('change', (e) => {
+                            const t = document.getElementById(e.target.getAttribute('data-target'));
+                            if (t) t.checked = e.target.checked;
+                        });
+
+                        const txt = document.createElement('span');
+                        txt.textContent = labelText;
+
+                        opt.appendChild(mcb);
+                        opt.appendChild(txt);
+                        list.appendChild(opt);
+                    });
+
+                    block.appendChild(title);
+                    block.appendChild(list);
+                    card.appendChild(block);
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            buildMobileQuiz();
+        });
+
+
+        function validateForm() {
+            let isValid = true;
+            
+            const nameField = document.getElementById('name-field');
+            const name = document.getElementById('name').value.trim();
+            if (!name) {
+                nameField.classList.add('error');
+                isValid = false;
+            } else {
+                nameField.classList.remove('error');
+            }
+            
+            const genderField = document.getElementById('gender-field');
+            const gender = document.getElementById('gender').value;
+            if (!gender) {
+                genderField.classList.add('error');
+                isValid = false;
+            } else {
+                genderField.classList.remove('error');
+            }
+            
+            const ageField = document.getElementById('age-field');
+            const age = document.getElementById('age').value;
+            if (!age || age < 1 || age > 120) {
+                ageField.classList.add('error');
+                isValid = false;
+            } else {
+                ageField.classList.remove('error');
+            }
+            
+            return isValid;
+        }
+
+        function calculateResults() {
+            if (!validateForm()) {
+                alert('Please fill in all required fields (Name, Gender, Age)');
+                document.querySelector('.personal-details').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            let vataScore = 0;
+            let pittaScore = 0;
+            let kaphaScore = 0;
+            let selectedOptions = {};
+
+            questions.forEach(q => {
+                selectedOptions[q.num] = {
+                    question: q.text,
+                    vata: [],
+                    pitta: [],
+                    kapha: []
+                };
+
+                document.querySelectorAll(`input[name="q${q.num}_vata"]:checked`).forEach(cb => {
+                    vataScore++;
+                    selectedOptions[q.num].vata.push(cb.value);
+                });
+                
+                document.querySelectorAll(`input[name="q${q.num}_pitta"]:checked`).forEach(cb => {
+                    pittaScore++;
+                    selectedOptions[q.num].pitta.push(cb.value);
+                });
+                
+                document.querySelectorAll(`input[name="q${q.num}_kapha"]:checked`).forEach(cb => {
+                    kaphaScore++;
+                    selectedOptions[q.num].kapha.push(cb.value);
+                });
+            });
+
+            document.getElementById('vata-score').textContent = vataScore;
+            document.getElementById('pitta-score').textContent = pittaScore;
+            document.getElementById('kapha-score').textContent = kaphaScore;
+
+            const scores = [
+                { name: 'Vata', score: vataScore },
+                { name: 'Pitta', score: pittaScore },
+                { name: 'Kapha', score: kaphaScore }
+            ];
+            scores.sort((a, b) => b.score - a.score);
+
+            const resultMessage = document.getElementById('result-message');
+            
+            if (vataScore === 0 && pittaScore === 0 && kaphaScore === 0) {
+                resultMessage.innerHTML = 'Please select some options to see your results.';
+                resultMessage.classList.add('show');
+                return;
+            }
+
+            quizResults = {
+                name: document.getElementById('name').value.trim(),
+                gender: document.getElementById('gender').value,
+                age: document.getElementById('age').value,                vataScore: vataScore,
+                pittaScore: pittaScore,
+                kaphaScore: kaphaScore,
+                dominantDosha: scores[0].name,
+                secondaryDosha: scores[1].name,
+                recessiveDosha: scores[2].name,
+                selectedOptions: selectedOptions,
+                date: new Date().toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                })
+            };
+
+            resultMessage.innerHTML = `
+                <strong>Your dominant dosha is ${scores[0].name}</strong><br>
+                Your secondary dosha is ${scores[1].name}<br>
+                Your recessive dosha is ${scores[2].name}
+            `;
+            resultMessage.classList.add('show');
+
+            document.getElementById('download-btn').classList.add('show');
+
+            document.querySelector('.results-section').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 20;
+            const contentWidth = pageWidth - (margin * 2);
+            let y = margin;
+
+            const vataColor = [123, 158, 135];
+            const pittaColor = [196, 120, 92];
+            const kaphaColor = [107, 140, 174];
+            const goldColor = [201, 169, 98];
+            const textDark = [45, 42, 38];
+
+            function checkNewPage(requiredSpace) {
+                if (y + requiredSpace > pageHeight - margin) {
+                    doc.addPage();
+                    y = margin;
+                    return true;
+                }
+                return false;
+            }
+
+            function addWrappedText(text, x, startY, maxWidth, lineHeight, fontSize) {
+                doc.setFontSize(fontSize);
+                const lines = doc.splitTextToSize(text, maxWidth);
+                lines.forEach((line, index) => {
+                    checkNewPage(lineHeight);
+                    doc.text(line, x, y);
+                    y += lineHeight;
+                });
+                return y;
+            }
+
+            // Header
+            doc.setFillColor(...vataColor);
+            doc.rect(0, 0, pageWidth, 50, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(28);
+            doc.text('Dosha Quiz Report', pageWidth / 2, 25, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Your Personal Ayurvedic Body Type Analysis', pageWidth / 2, 38, { align: 'center' });
+            
+            y = 65;
+
+            // Personal Details
+            doc.setTextColor(...textDark);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text('Personal Details', margin, y);
+            y += 10;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(11);
+            doc.text(`Name: ${quizResults.name}`, margin, y);
+            doc.text(`Date: ${quizResults.date}`, pageWidth - margin - 60, y);
+            y += 7;
+            doc.text(`Gender: ${quizResults.gender}`, margin, y);
+            doc.text(`Age: ${quizResults.age} years`, margin + 60, y);
+            if (quizResults.email) {
+                doc.text(`Email: ${quizResults.email}`, margin + 120, y);
+            }
+            y += 15;
+
+            // Scores Section
+            doc.setDrawColor(...goldColor);
+            doc.setLineWidth(0.5);
+            doc.line(margin, y, pageWidth - margin, y);
+            y += 10;
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text('Your Dosha Scores', margin, y);
+            y += 15;
+
+            const boxWidth = (contentWidth - 20) / 3;
+            const boxHeight = 35;
+            const boxY = y;
+
+            // Vata box
+            doc.setFillColor(...vataColor);
+            doc.roundedRect(margin, boxY, boxWidth, boxHeight, 3, 3, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(12);
+            doc.text('VATA', margin + boxWidth/2, boxY + 12, { align: 'center' });
+            doc.setFontSize(20);
+            doc.setFont('helvetica', 'bold');
+            doc.text(quizResults.vataScore.toString(), margin + boxWidth/2, boxY + 28, { align: 'center' });
+
+            // Pitta box
+            doc.setFillColor(...pittaColor);
+            doc.roundedRect(margin + boxWidth + 10, boxY, boxWidth, boxHeight, 3, 3, 'F');
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text('PITTA', margin + boxWidth + 10 + boxWidth/2, boxY + 12, { align: 'center' });
+            doc.setFontSize(20);
+            doc.setFont('helvetica', 'bold');
+            doc.text(quizResults.pittaScore.toString(), margin + boxWidth + 10 + boxWidth/2, boxY + 28, { align: 'center' });
+
+            // Kapha box
+            doc.setFillColor(...kaphaColor);
+            doc.roundedRect(margin + (boxWidth + 10) * 2, boxY, boxWidth, boxHeight, 3, 3, 'F');
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text('KAPHA', margin + (boxWidth + 10) * 2 + boxWidth/2, boxY + 12, { align: 'center' });
+            doc.setFontSize(20);
+            doc.setFont('helvetica', 'bold');
+            doc.text(quizResults.kaphaScore.toString(), margin + (boxWidth + 10) * 2 + boxWidth/2, boxY + 28, { align: 'center' });
+
+            y = boxY + boxHeight + 15;
+
+            // Results summary
+            doc.setTextColor(...textDark);
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Result Summary:', margin, y);
+            y += 8;
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Dominant Dosha: ${quizResults.dominantDosha}`, margin + 5, y);
+            y += 6;
+            doc.text(`Secondary Dosha: ${quizResults.secondaryDosha}`, margin + 5, y);
+            y += 6;
+            doc.text(`Recessive Dosha: ${quizResults.recessiveDosha}`, margin + 5, y);
+            y += 15;
+
+            // Dominant Dosha Interpretation
+            doc.setDrawColor(...goldColor);
+            doc.line(margin, y, pageWidth - margin, y);
+            y += 10;
+
+            const dominantInfo = doshaInfo[quizResults.dominantDosha];
+            const doshaColors = {
+                Vata: vataColor,
+                Pitta: pittaColor,
+                Kapha: kaphaColor
+            };
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.setTextColor(...doshaColors[quizResults.dominantDosha]);
+            doc.text(`Your Dominant Dosha: ${quizResults.dominantDosha}`, margin, y);
+            y += 10;
+
+            doc.setTextColor(...textDark);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            y = addWrappedText(dominantInfo.description, margin, y, contentWidth, 5, 10);
+            y += 5;
+
+            checkNewPage(40);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.setTextColor(...doshaColors[quizResults.dominantDosha]);
+            doc.text(`Diet Recommendations for ${quizResults.dominantDosha}:`, margin, y);
+            y += 7;
+            doc.setTextColor(...textDark);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            y = addWrappedText(dominantInfo.diet, margin, y, contentWidth, 5, 10);
+            y += 5;
+
+            checkNewPage(40);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.setTextColor(...doshaColors[quizResults.dominantDosha]);
+            doc.text(`Lifestyle Recommendations for ${quizResults.dominantDosha}:`, margin, y);
+            y += 7;
+            doc.setTextColor(...textDark);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            y = addWrappedText(dominantInfo.lifestyle, margin, y, contentWidth, 5, 10);
+            y += 10;
+
+            // Detailed Responses
+            checkNewPage(20);
+            doc.setDrawColor(...goldColor);
+            doc.line(margin, y, pageWidth - margin, y);
+            y += 10;
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.setTextColor(...textDark);
+            doc.text('Your Detailed Responses', margin, y);
+            y += 10;
+
+            for (let qNum = 1; qNum <= 10; qNum++) {
+                const qData = quizResults.selectedOptions[qNum];
+                if (!qData) continue;
+
+                checkNewPage(25);
+                
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.setTextColor(...textDark);
+                doc.text(`Q${qNum}. ${qData.question}`, margin, y);
+                y += 6;
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+
+                let responseText = [];
+                if (qData.vata.length > 0) {
+                    responseText.push(`Vata: ${qData.vata.join(', ')}`);
+                }
+                if (qData.pitta.length > 0) {
+                    responseText.push(`Pitta: ${qData.pitta.join(', ')}`);
+                }
+                if (qData.kapha.length > 0) {
+                    responseText.push(`Kapha: ${qData.kapha.join(', ')}`);
+                }
+
+                if (responseText.length > 0) {
+                    responseText.forEach(text => {
+                        checkNewPage(6);
+                        doc.text(`  ${text}`, margin, y);
+                        y += 5;
+                    });
+                } else {
+                    doc.text('  No selection', margin, y);
+                    y += 5;
+                }
+                y += 3;
+            }
+
+            // Footer
+            const totalPages = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text(
+                    'This quiz is for general awareness. For any changes to diet, lifestyle, or medication, seek proper guidance.',
+                    pageWidth / 2,
+                    pageHeight - 10,
+                    { align: 'center' }
+                );
+                doc.text(
+                    `Page ${i} of ${totalPages}`,
+                    pageWidth - margin,
+                    pageHeight - 10,
+                    { align: 'right' }
+                );
+            }
+
+            const fileName = `Dosha_Report_${quizResults.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+        }
+    </script>
+
+<script>
+(function () {
+  function isMobile() {
+    return window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+  }
+
+  function hideDoshaLabelsOnMobile() {
+    if (!isMobile()) return;
+
+    var labels = new Set(["Vata", "Pitta", "Kapha"]);
+
+    // Look for common heading elements inside the quiz area
+    var candidates = document.querySelectorAll("h2, h3, h4, h5, .dosha-title, .section-title, .dosha-label");
+    candidates.forEach(function (el) {
+      var txt = (el.textContent || "").trim();
+      if (labels.has(txt)) {
+        // Insert a subtle divider in place of the label
+        var hr = document.createElement("hr");
+        hr.className = "dosha-divider";
+        el.parentNode.insertBefore(hr, el);
+        el.style.display = "none";
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", hideDoshaLabelsOnMobile);
+  window.addEventListener("resize", hideDoshaLabelsOnMobile);
+})();
+</script>
+
+</body>
+</html>
